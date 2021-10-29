@@ -104,7 +104,7 @@ print("ds_valid:  ", ds_valid)
 
 def get_labels_from_tfdataset(tfdataset, batched=False):
 
-    labels = list(map(lambda x: x[1], tfdataset)) # Get labels 
+    labels = list(map(lambda x: x[1], tfdataset)) # Get labels
 
     if not batched:
         return tf.concat(labels, axis=0) # concat the list of batched labels
@@ -123,7 +123,7 @@ for e in range(len(labels)):
 
 
 
-print(f"Lables: {label}, shape: {len(label)}")
+#print(f"Lables: {label}, shape: {len(label)}")
 
 print(f"Confusion matrix: \n {tf.math.confusion_matrix(label, test_pred)}")
 
