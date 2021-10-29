@@ -4,13 +4,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import pandas as pd
-import tensorflow_datasets as tfds
-
 import tensorflow.keras as keras
-import tensorflow.keras.layers as layers
-
-import tensorflow_hub as hub
 
 import PIL.Image as Image
 
@@ -25,7 +19,7 @@ label_dict = {0: 'AnnualCrop',
     8: 'River',
     9: 'SeaLake'}
 
-print(f"Label dictionary: {label_dict}")
+print(f"\n Label dictionary: {label_dict}\n ")
 
 model = keras.models.load_model("eurosat_classifier")
 
@@ -40,10 +34,10 @@ fil = "River_1005.jpg"
 river = Image.open(fil).resize(IMAGE_SHAPE)
 
 river = np.array(river)/255.0
-print(river.shape)
+print("Image shape after resize ",river.shape)
 
 result = model.predict(river[np.newaxis, ...])
-print(result.shape)
+#print(result.shape)
 print("\n Prediction of: ",fil,"  ",result)
 
 predicted_class = tf.math.argmax(result[0], axis=-1)
