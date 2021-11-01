@@ -2,6 +2,7 @@ import os
 import datetime
 import numpy as np
 import subprocess
+import time
 from itertools import product
 
 import rasterio
@@ -119,21 +120,20 @@ def GeoTIFF_2_RGBJPEG(image_names,outFormat='jpeg'):
     ---- Parameters: -----
     images: List of multispectral images, relative/full path name.
     """
-    command = ['gdal_translate', '-ot', 'Byte', '-of', outFormat, '-scale',\
-        '-b', '4', '-b', '3', '-b', '2']
     for img in image_names:
+        command = ['gdal_translate', '-ot', 'Byte', '-of', outFormat, '-scale',\
+        '-b', '4', '-b', '3', '-b', '2']
         root_path = os.path.split(img)[0]
         out_path = root_path+'/RGB/'
         out_name = os.path.split(img)[1].split('.')[0]+'.jpg'
-        if not os.path.exists(os.path.split(out_name)[0]):
+        if not os.path.exists(out_path):
             os.makedirs(out_path)
+        if not os.path.exists(out_path+out_name): # Check if already exists
             command.append(img)
             command.append(out_path+out_name)
-            print(command)
             subprocess.run(command)
         else:
-            print("RGB folder already exists.")
-            break
+            print('JPEG previously generated --- SKIPPING')
         
 
 
@@ -180,6 +180,7 @@ if __name__ == '__main__':
         }
     """
 
+    # Download images from sentinelhub
     requests = [get_all_band_request(t,box,box_size,evalscript_all_bands,config) for t in time_intervals]
     requests = [request.download_list[0] for request in requests]
     data = SentinelHubDownloadClient(config=config).download(requests,max_threads=5)
@@ -191,9 +192,27 @@ if __name__ == '__main__':
         path = 'images/'
         tile_and_save(path)
     
-    # Create JPG image as well?
-    copy_and_convert = True
-    if copy_and_convert:
-        path = ['images/2ce2d4c83c534476eb189a57304a58d9/response.tiff']
-        GeoTIFF_2_RGBJPEG(path,outFormat='jpeg')
+    # Create JPG images for image and/or tiles?
+    convert_full_raster = False
+    convert_tiled_raster = False
+
+    root_path = 'images/'
+    tiled_images = []
+    full_rasters = []
+
+    if convert_full_raster:
+        full_images = [root_path + f for f in os.listdir(root_path) if not f.startswith('.')]
+        for img in full_images:
+            full_rasters.append(img+'/response.tiff')
+        GeoTIFF_2_RGBJPEG(full_rasters)
+    print("[INFO] Preparing to convert tiled rasters to JPEG (RGB).")
+    time.sleep(3)
+    if convert_tiled_raster:
+        full_images = [root_path + f for f in os.listdir(root_path) if not f.startswith('.')]
+        full_images = [f + '/tiled_images/' for f in full_images]
+        for img in full_images:
+            tiles = [tile for tile in os.listdir(img) if not tile.startswith('.')]
+            for tile in tiles:
+                tiled_images.append(img+tile)
+        GeoTIFF_2_RGBJPEG(tiled_images)
     
