@@ -63,12 +63,14 @@ NUM_CLASSES = info.features['label'].num_classes
 #"https://tfhub.dev/google/remote_sensing/bigearthnet-resnet50/1"
 
 hub_url = "https://tfhub.dev/google/remote_sensing/bigearthnet-resnet50/1"
-hub_layer = hub.KerasLayer(hub_url, input_shape=[])
+hub_layer = hub.KerasLayer(hub_url, trainable=True, input_shape=[])
 
 IMAGE_SHAPE = (64, 64)
 
 classifier = tf.keras.Sequential([
+    layers.InputLayer(input_shape=IMAGE_SHAPE + (3,)),
     hub.KerasLayer(hub_url, input_shape=IMAGE_SHAPE+(3,)),
+    layers.Dropout(rate=0.2),
     layers.Dense(NUM_CLASSES, activation="softmax")
 ])
 
@@ -94,21 +96,25 @@ history = classifier.fit(
     callbacks=[early_stopping],
 )
 
-classifier.save("eurosat_classifier")
+classifier.save("eurosat_classifier2")
 
 history_frame = pd.DataFrame(history.history)
 history_frame.loc[:, ['loss', 'val_loss']].plot()
 history_frame.loc[:, ['sparse_categorical_accuracy', 'val_sparse_categorical_accuracy']].plot()
+print(history_frame)
 plt.show()
 
+
 #river = tf.keras.utils.get_file('River_1005.jpg')
+#
+#
 river = Image.open('River_1005.jpg').resize(IMAGE_SHAPE)
 
 img = plt.imread("River_1005.jpg")
 plt.imshow(img)
 plt.show()
 
-river = np.array(river)#/255.0
+river = np.array(river)/255.0
 print(river.shape)
 
 result = classifier.predict(river[np.newaxis, ...])

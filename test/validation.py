@@ -14,12 +14,24 @@ import tensorflow_hub as hub
 
 import PIL.Image as Image
 
+label_dict = {0: 'AnnualCrop',
+    1: 'Forest',
+    2: 'HerbaceousVegetation',
+    3: 'Highway',
+    4: 'Industrial',
+    5: 'Pasture',
+    6: 'PermanentCrop',
+    7: 'Residential',
+    8: 'River',
+    9: 'SeaLake'}
+
+print(f"Label dictionary: {label_dict}")
 
 ds, info = tfds.load('eurosat/rgb',
                         with_info=True,
                         split='train')
 
-tfds.show_examples(ds, info)
+#tfds.show_examples(ds, info)
 
 print(info)
 
@@ -62,8 +74,7 @@ ds_valid = (ds_valid
 NUM_CLASSES = info.features['label'].num_classes
 
 
-model = keras.models.load_model("eurosat_classifier")
-
+model = keras.models.load_model("eurosat_classifier2")
 
 test_pred = model.predict(ds_valid)
 test_pred = np.argmax(test_pred, axis=1)
@@ -75,32 +86,37 @@ print(val_evaluate)
 
 IMAGE_SHAPE = (64, 64)
 
-river = Image.open('River_1005.jpg').resize(IMAGE_SHAPE)
+#River_1005.jpg
+#test2.jpg
+#testbilde1-elv.jpg
+fil = "River_1005.jpg"
 
-img = plt.imread("River_1005.jpg")
+river = Image.open(fil).resize(IMAGE_SHAPE)
+
+img = plt.imread(fil)
 plt.imshow(img)
 plt.show()
 
-river = np.array(river)#/255.0
+river = np.array(river)/255.0
 print(river.shape)
 
 result = model.predict(river[np.newaxis, ...])
 print(result.shape)
-print(result)
+print("\n Prediction of: ",fil,"  ",result)
 
 predicted_class = tf.math.argmax(result[0], axis=-1)
-print(predicted_class)
+print(f"\n Decoded prediction {predicted_class}, {label_dict[predicted_class.numpy()]} \n")
 
-
+"""
 for images, labels in ds_valid.take(1):  # only take first element of dataset
     numpy_images = images.numpy()
     numpy_labels = labels.numpy()
 
 print(f"lables {numpy_labels}, shape {numpy_labels.shape}")
+"""
+ds_numpy = tfds.as_numpy(ds_valid)
 
-#ds_numpy = tfds.as_numpy(ds_valid)
-
-print("ds_valid:  ", ds_valid)
+#print("ds_valid:  ", ds_valid)
 
 def get_labels_from_tfdataset(tfdataset, batched=False):
 
