@@ -74,7 +74,7 @@ ds_valid = (ds_valid
 NUM_CLASSES = info.features['label'].num_classes
 
 
-model = keras.models.load_model("eurosat_classifier2")
+model = keras.models.load_model("eurosat_classifier32")
 
 test_pred = model.predict(ds_valid)
 test_pred = np.argmax(test_pred, axis=1)
