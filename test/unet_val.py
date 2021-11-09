@@ -111,49 +111,8 @@ axs[2].imshow(masked_image)
 axs[2].set_title('Masked Image')
 plt.show()
 
-model = sm.Unet('resnet50', classes=13, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3])
-
+model = keras.models.load_model("segmentation_model")
 model.summary()
-
-tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU.png')
-
-############################################# Training
-
-model.compile(
-    optimizer='adam',
-    loss='categorical_crossentropy',
-    metrics=['categorical_crossentropy', 'acc'],
-)
-
-log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-
-checkpoint = ModelCheckpoint('seg_model.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
-
-TRAIN_STEPS = num_of_training_samples//BATCH_SIZE+1
-VAL_STEPS = num_of_valid_samples//BATCH_SIZE+1
-
-#model.fit_generator(train_gen, validation_data=val_gen, steps_per_epoch=TRAIN_STEPS,
-#                    validation_steps=VAL_STEPS, epochs=EPOCHS, callbacks = [checkpoint, tensorboard_callback])
-history = model.fit(
-    train_gen,
-    validation_data=val_gen,
-    epochs=EPOCHS,
-    steps_per_epoch=TRAIN_STEPS,
-    callbacks=[checkpoint],
-    workers=0,
-    verbose=1,
-    validation_steps=VAL_STEPS,
-)
-
-model.save("segmentation_model")
-
-history_frame = pd.DataFrame(history.history)
-history_frame.loc[:, ['loss', 'val_loss']].plot()
-history_frame.loc[:, ['sparse_categorical_accuracy', 'val_sparse_categorical_accuracy']].plot()
-print(history_frame)
-plt.show()
-
 
 max_show = 1
 imgs, segs = next(val_gen)
@@ -170,7 +129,7 @@ for i in range(max_show):
     plt.subplot(121)
     plt.title("Prediction")
     plt.imshow(predimg)
-    plt.axis("off")                              
+    plt.axis("off")
     plt.subplot(122)
     plt.title("Original")
     plt.imshow(trueimg)
