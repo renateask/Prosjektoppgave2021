@@ -135,3 +135,5 @@ test/cityscapes_data
 test/logs
 test/eurosat_classifier3
 test/eurosat_classifier32
+test/segmentaion_model
+test/seg_model.hdf5
