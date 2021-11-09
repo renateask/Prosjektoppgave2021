@@ -21,7 +21,7 @@ label_dict = {0: 'AnnualCrop',
 
 print(f"\n Label dictionary: {label_dict}\n")
 
-model = keras.models.load_model("eurosat_classifier2")
+model = keras.models.load_model("eurosat_classifier32")
 
 files = os.listdir("RGB")
 
@@ -37,7 +37,7 @@ fig = plt.figure()
 plt.title("847cc28c918f50fcdebf46a90c340ac6")
 fig.tight_layout(pad=50)
 
-for i in range(40):
+for i in range(10):
     if files[i] != ".DS_Store":
         path = "RGB/"+files[i]
 
@@ -51,7 +51,7 @@ for i in range(40):
         print(f"Decoded prediction {predicted_class}, {decode} \n")
 
 
-        plt.subplot(5,8,i+1)
+        plt.subplot(2,5,i+1)
         img = plt.imread(path)
         plt.imshow(img)
         plt.title(f"Prediction: {decode}\n Filename: {files[i]}")
