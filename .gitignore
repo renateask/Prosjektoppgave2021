@@ -138,3 +138,4 @@ test/eurosat_classifier32
 test/segmentaion_model
 test/seg_model.hdf5
 test/segmentation_model
+test/data
