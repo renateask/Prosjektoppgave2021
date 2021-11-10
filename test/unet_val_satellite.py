@@ -25,22 +25,29 @@ from keras.callbacks import ModelCheckpoint
 
 EPOCHS=10
 BATCH_SIZE=10
-HEIGHT=256
-WIDTH=256
-N_CLASSES=13
+HEIGHT=64
+WIDTH=64
+N_CLASSES=7
 
 def LoadImage(name, path):
-    img = Image.open(os.path.join(path, name))
-    img = np.array(img)
+    print(name)
+    if not name.startswith('.'):
+        img = Image.open(os.path.join(path+'/images/', name))
+        img = np.array(img)
 
-    image = img[:,:256]
-    mask = img[:,256:]
+        m = Image.open(os.path.join(path+'/masks/', name))
+        m = np.array(m)
 
-    return image, mask
+        image = img
+        mask = m
+
+        return image, mask
 
 
 def bin_image(mask):
-    bins = np.array([20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240])
+    #bins = np.array([[0:2], [175:177], [229:231], [107:109], [203:205], [64:67], [254:255]])
+    bins = np.array([0, 176, 230, 108, 204, 66, 255])
+    # [Water, Crops, Built area, Grass, Scrub, Trees, Bare Ground]
     new_mask = np.digitize(mask, bins)
     return new_mask
 
@@ -73,19 +80,20 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
             imgs=[]
             segs=[]
             for file in batch_files:
-                image, mask = LoadImage(file, path)
-                mask_binned = bin_image(mask)
-                labels = getSegmentationArr(mask_binned, classes)
+                if not file.startswith('.'):
+                    image, mask = LoadImage(file, path)
+                    mask_binned = bin_image(mask)
+                    labels = getSegmentationArr(mask_binned, classes)
 
-                imgs.append(image)
-                segs.append(labels)
+                    imgs.append(image)
+                    segs.append(labels)
             yield np.array(imgs), np.array(segs)
 
 
-classes = 13
+classes = 7
 
-train_folder = "cityscapes_data/train"
-valid_folder = "cityscapes_data/val"
+train_folder = "data/Train"
+valid_folder = "data/Val"
 
 num_of_training_samples = len(os.listdir(train_folder))
 num_of_valid_samples = len(os.listdir(valid_folder))

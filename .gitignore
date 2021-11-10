@@ -138,10 +138,3 @@ test/eurosat_classifier32
 test/segmentaion_model
 test/seg_model.hdf5
 test/segmentation_model
-<<<<<<< HEAD
-test/data
-=======
-
-data/images
-data/masks
->>>>>>> 253647b0d434974d9e1041abf192e08edd338cce
