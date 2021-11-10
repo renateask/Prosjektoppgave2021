@@ -79,7 +79,6 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
                 imgs.append(image)
                 segs.append(labels)
-
             yield np.array(imgs), np.array(segs)
 
 
@@ -114,7 +113,7 @@ plt.show()
 model = keras.models.load_model("segmentation_model")
 model.summary()
 
-max_show = 3
+max_show = 1
 imgs, segs = next(val_gen)
 pred = model.predict(imgs)
 
