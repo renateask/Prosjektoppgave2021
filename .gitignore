@@ -143,3 +143,5 @@ data/images
 data/masks
 data/train
 data/validation
+
+.DS_store
