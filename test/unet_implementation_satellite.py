@@ -23,30 +23,38 @@ import seaborn as sns
 import cv2
 from keras.callbacks import ModelCheckpoint
 
-EPOCHS=10
+EPOCHS=30
 BATCH_SIZE=10
-HEIGHT=256
-WIDTH=256
-N_CLASSES=13
+HEIGHT=64
+WIDTH=64
+N_CLASSES=7
 
 def LoadImage(name, path):
-    img = Image.open(os.path.join(path, name))
-    img = np.array(img)
+    print(name)
+    if not name.startswith('.'):
+        img = Image.open(os.path.join(path+'/images/', name))
+        img = np.array(img)
 
-    image = img[:,:256]
-    mask = img[:,256:]
+        m = Image.open(os.path.join(path+'/masks/', name))
+        m = np.array(m)
 
-    return image, mask
+        image = img
+        mask = m
+
+        return image, mask
 
 
 def bin_image(mask):
-    bins = np.array([20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240])
+    #bins = np.array([[0:2], [175:177], [229:231], [107:109], [203:205], [64:67], [254:255]])
+    bins = np.array([0, 176, 230, 108, 204, 66, 255])
+    bins.sort()
+    # [Water, Crops, Built area, Grass, Scrub, Trees, Bare Ground]
     new_mask = np.digitize(mask, bins)
     return new_mask
 
 def getSegmentationArr(image, classes, width=WIDTH, height=HEIGHT):
     seg_labels = np.zeros((height, width, classes))
-    img = image[:, : , 0]
+    img = image[:, :]
 
     for c in range(classes):
         seg_labels[:, :, c] = (img == c ).astype(int)
@@ -66,27 +74,27 @@ def give_color_to_seg_img(seg, n_classes=N_CLASSES):
     return(seg_img)
 
 def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
-    files = os.listdir(path)
+    files = os.listdir(path+'/images')
     while True:
         for i in range(0, len(files), batch_size):
             batch_files = files[i : i+batch_size]
             imgs=[]
             segs=[]
             for file in batch_files:
-                image, mask = LoadImage(file, path)
-                mask_binned = bin_image(mask)
-                labels = getSegmentationArr(mask_binned, classes)
+                if not file.startswith('.'):
+                    image, mask = LoadImage(file, path)
+                    mask_binned = bin_image(mask)
+                    labels = getSegmentationArr(mask_binned, classes)
 
-                imgs.append(image)
-                segs.append(labels)
-
+                    imgs.append(image)
+                    segs.append(labels)
             yield np.array(imgs), np.array(segs)
 
 
-classes = 13
+classes = 7
 
-train_folder = "cityscapes_data/train"
-valid_folder = "cityscapes_data/val"
+train_folder = "data/Train"
+valid_folder = "data/Val"
 
 num_of_training_samples = len(os.listdir(train_folder))
 num_of_valid_samples = len(os.listdir(valid_folder))
@@ -111,7 +119,7 @@ axs[2].imshow(masked_image)
 axs[2].set_title('Masked Image')
 plt.show()
 
-model = sm.Unet('resnet50', classes=13, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3])
+model = sm.Unet('resnet50', classes=7, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3])
 
 model.summary()
 
@@ -128,7 +136,7 @@ model.compile(
 log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-checkpoint = ModelCheckpoint('seg_model.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+checkpoint = ModelCheckpoint('seg_model_sat.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 
 TRAIN_STEPS = num_of_training_samples//BATCH_SIZE+1
 VAL_STEPS = num_of_valid_samples//BATCH_SIZE+1
@@ -140,22 +148,23 @@ history = model.fit(
     validation_data=val_gen,
     epochs=EPOCHS,
     steps_per_epoch=TRAIN_STEPS,
-    callbacks=[checkpoint],
+    callbacks=[checkpoint, tensorboard_callback],
     workers=0,
     verbose=1,
     validation_steps=VAL_STEPS,
 )
 
-model.save("segmentation_model")
+model.save("segmentation_model_sat")
 
+"""
 history_frame = pd.DataFrame(history.history)
 history_frame.loc[:, ['loss', 'val_loss']].plot()
 history_frame.loc[:, ['sparse_categorical_accuracy', 'val_sparse_categorical_accuracy']].plot()
 print(history_frame)
 plt.show()
+"""
 
-
-max_show = 1
+max_show = 10
 imgs, segs = next(val_gen)
 pred = model.predict(imgs)
 
@@ -165,12 +174,12 @@ for i in range(max_show):
 
     predimg = cv2.addWeighted(imgs[i]/255, 0.5, _p, 0.5, 0)
     trueimg = cv2.addWeighted(imgs[i]/255, 0.5, _s, 0.5, 0)
-    
+
     plt.figure(figsize=(12,6))
     plt.subplot(121)
     plt.title("Prediction")
     plt.imshow(predimg)
-    plt.axis("off")                              
+    plt.axis("off")
     plt.subplot(122)
     plt.title("Original")
     plt.imshow(trueimg)

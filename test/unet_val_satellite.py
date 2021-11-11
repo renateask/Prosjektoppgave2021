@@ -47,13 +47,14 @@ def LoadImage(name, path):
 def bin_image(mask):
     #bins = np.array([[0:2], [175:177], [229:231], [107:109], [203:205], [64:67], [254:255]])
     bins = np.array([0, 176, 230, 108, 204, 66, 255])
+    bins.sort()
     # [Water, Crops, Built area, Grass, Scrub, Trees, Bare Ground]
     new_mask = np.digitize(mask, bins)
     return new_mask
 
 def getSegmentationArr(image, classes, width=WIDTH, height=HEIGHT):
     seg_labels = np.zeros((height, width, classes))
-    img = image[:, : , 0]
+    img = image[:, :]
 
     for c in range(classes):
         seg_labels[:, :, c] = (img == c ).astype(int)
@@ -73,7 +74,7 @@ def give_color_to_seg_img(seg, n_classes=N_CLASSES):
     return(seg_img)
 
 def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
-    files = os.listdir(path)
+    files = os.listdir(path+'/images')
     while True:
         for i in range(0, len(files), batch_size):
             batch_files = files[i : i+batch_size]
@@ -104,8 +105,8 @@ val_gen = DataGenerator(valid_folder, batch_size=BATCH_SIZE)
 imgs, segs = next(train_gen)
 print(imgs.shape, segs.shape)
 
-image = imgs[0]
-mask = give_color_to_seg_img(np.argmax(segs[0], axis=-1))
+image = imgs[9]
+mask = give_color_to_seg_img(np.argmax(segs[9], axis=-1))
 masked_image = cv2.addWeighted(image/255, 0.5, mask, 0.5, 0)
 
 fig, axs = plt.subplots(1, 3, figsize=(20,20))
@@ -118,10 +119,10 @@ axs[2].imshow(masked_image)
 axs[2].set_title('Masked Image')
 plt.show()
 
-model = keras.models.load_model("segmentation_model")
+model = keras.models.load_model("segmentation_model_sat")
 model.summary()
 
-max_show = 1
+max_show = 10
 imgs, segs = next(val_gen)
 pred = model.predict(imgs)
 
