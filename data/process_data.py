@@ -74,7 +74,7 @@ for img in image_paths_rgb:
     if not os.path.exists(root_path+'/tiled_images'): # Check if already tiled
         rpt.tile_and_save(img,size=(64,64),data='image')
 
-# Convert images to JPEG:
+# Convert images to JPEG/PNG:
 
 # Full raster
 for image in image_paths_rgb:
@@ -113,7 +113,7 @@ rpt.match_resolution(image,mask_clip_reproj_path)
 processed_mask_path = 'masks/esriNOR_projcrop_matched.tif'
 rpt.tile_and_save(processed_mask_path,size=(64,64),data='mask')
         
-# Convert masks to JPEG:
+# Convert masks to JPEG/PNG:
 
 # Full raster
 rpt.Gtiff2rgb(processed_mask_path,outFormat='jpeg',bands=1)

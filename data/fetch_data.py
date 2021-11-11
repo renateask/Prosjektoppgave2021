@@ -87,6 +87,14 @@ if __name__ == '__main__':
             }
 
             function evaluatePixel(sample) {
+                if (sample.CLM == 1) {
+                    return [sample.B01,sample.B02,
+                        sample.B03, 0.75 + sample.B04,
+                        sample.B05,sample.B06,
+                        sample.B07,sample.B08,
+                        sample.B09,sample.B10,
+                        sample.B11,sample.B12]
+                }
                 return [sample.B01*2.5,sample.B02*2.5,
                         sample.B03*2.5,sample.B04*2.5,
                         sample.B05*2.5,sample.B06*2.5,

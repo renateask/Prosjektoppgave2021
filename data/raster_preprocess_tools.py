@@ -89,7 +89,9 @@ def Gtiff2rgb(image_path,outFormat='jpeg',bands=3):
             raise Exception("[ERROR] Convert TIFF to JPEG/PNG: provide bands 3 (rgb), 1, or 13 (rgb output)")
         root_path = os.path.split(image_path)[0]
         out_path = root_path+'/RGB/'
-        out_name = os.path.split(image_path)[1].split('.')[0]+'.jpg'
+        extension = '.'+outFormat
+        if extension == '.jpeg': extension = '.jpg'
+        out_name = os.path.split(image_path)[1].split('.')[0]+extension
         if not os.path.exists(out_path):
             os.makedirs(out_path)
         if not os.path.exists(out_path+out_name): # Check if already exists
@@ -97,7 +99,7 @@ def Gtiff2rgb(image_path,outFormat='jpeg',bands=3):
             command.append(out_path+out_name)
             subprocess.run(command)
         else:
-            print('JPEG previously generated --- SKIPPING')
+            print('JPEG/PNG previously generated --- SKIPPING')
     except Exception as e:
         print(e)
 

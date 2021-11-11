@@ -1,52 +1,65 @@
 import os
 import shutil
+from sklearn.model_selection import train_test_split
 
-# Paths to images and masks
 
-image_dirs = [
-    "images/2020-05-01:2020-06-01/",
-    "images/2019-09-01:2019-10-01/",
-    "images/2019-10-01:2019-11-01/",
-    "images/2019-07-02:2019-08-01/",
-    "images/2019-08-01:2019-09-01/",
-    "images/2020-10-31:2020-11-30/",
-    "images/2020-09-30:2020-10-31/",
+# Define train/val split
+train_size = 0.85 # 85%
+
+# Define images too cloudy to make the cut (should automate this if time)
+too_cloudy = [
+    "images/2019-05-02:2019-06-02",
+    "images/2020-07-01:2020-07-31"
 ]
 
-n_imgs = len(image_dirs)
+root_images = "images/"
+image_dirs = [root_images+f+"/tiled_images/" for f in os.listdir(root_images) if not f.startswith('.')\
+    and root_images+f not in too_cloudy]
+path_images = []
+for directory in image_dirs:
+    for tile in os.listdir(directory):
+        if tile.endswith(".tif"): path_images.append(directory+tile)
 
-for i in range(len(image_dirs)):
-    image_dirs[i] = image_dirs[i] + 'tiled_images/RGB/'
+root_masks = "masks/tiled_masks/"
+path_temp_masks = [root_masks + f for f in os.listdir(root_masks) if f.endswith(".tif")]
+path_masks = path_temp_masks
+for i in range(len(image_dirs)-1):
+    path_masks = path_masks + path_temp_masks
+    
+# Build dataset:
+train_imgs_dst = "train/images/"
+train_masks_dst = "train/masks/"
+val_imgs_dst = "validation/images/"
+val_masks_dst = "validation/masks/"
 
-images =[]
-for image in image_dirs:
-    tiles = [image + tile for tile in os.listdir(image) if tile.endswith('.jpg')]
-    for tile in tiles:
-        images.append(tile)
-        
-mask_dirs = "masks/tiled_masks/RGB/"  
-
-mask_single = []
-for mask in os.listdir(mask_dirs):
-    if mask.endswith('.jpg'):
-        mask_single.append(mask_dirs + mask)
-
-masks = []
-for i in range(n_imgs):
-    masks += mask_single
-        
-data_dir = "data/"
-if not os.path.exists(data_dir):
-    image_dir = data_dir + 'images/'
-    mask_dir = data_dir + 'masks/'
-    os.makedirs(image_dir)
-    os.makedirs(mask_dir)
-    count = 0
-    for image in images:
-        shutil.copyfile(image,image_dir+str(count)+'.jpg')
+# Train/Val Split:
+train_imgs,val_imgs,train_masks,val_masks = train_test_split(path_images,path_masks,train_size=train_size)
+extension = '.'+os.path.split(train_imgs[0])[1].split('.')[1]
+if not os.path.exists(train_imgs_dst) and not os.path.exists(train_masks_dst)\
+    and not os.path.exists(val_imgs_dst) and not os.path.exists(val_masks_dst):
+    # Create directories and populate if not already done
+    os.makedirs(train_imgs_dst)
+    os.makedirs(train_masks_dst)
+    os.makedirs(val_imgs_dst)
+    os.makedirs(val_masks_dst)
+    
+    count = 1
+    for img in train_imgs:
+        shutil.copyfile(img,train_imgs_dst+str(count)+extension)
         count += 1
-    count = 0
-    for mask in masks:
-        shutil.copyfile(mask,mask_dir+str(count)+'.jpg')
+    count = 1
+    for img in val_imgs:
+        shutil.copyfile(img,val_imgs_dst+str(count)+extension)
+        count += 1
+    count = 1
+    for mask in train_masks:
+        shutil.copyfile(img,train_masks_dst+str(count)+extension)
+        count += 1
+    count = 1
+    for mask in val_masks:
+        shutil.copyfile(img,val_masks_dst+str(count)+extension)
         count += 1
     
+    
+
+
