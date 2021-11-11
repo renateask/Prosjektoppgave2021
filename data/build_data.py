@@ -53,11 +53,11 @@ if not os.path.exists(train_imgs_dst) and not os.path.exists(train_masks_dst)\
         count += 1
     count = 1
     for mask in train_masks:
-        shutil.copyfile(img,train_masks_dst+str(count)+extension)
+        shutil.copyfile(mask,train_masks_dst+str(count)+extension)
         count += 1
     count = 1
     for mask in val_masks:
-        shutil.copyfile(img,val_masks_dst+str(count)+extension)
+        shutil.copyfile(mask,val_masks_dst+str(count)+extension)
         count += 1
     
     
