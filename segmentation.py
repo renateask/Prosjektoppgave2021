@@ -42,7 +42,7 @@ def LoadImage(name, path):
     # Convert dimensions to standard (n,height,width) --> (height,width,n)
     image = np.rollaxis(image_arr,0,3)
     mask = np.rollaxis(mask_arr,0,3)
-    
+
     return image, mask
 
 
@@ -115,8 +115,8 @@ if __name__ == '__main__':
     axs[2].imshow(masked_image)
     axs[2].set_title('Masked Image')
     plt.show()
-    
-    model = sm.Unet('resnet50', classes=7, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3])
+
+    model = sm.Unet('resnet50', classes=N_CLASSES, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3])
 
     model.summary()
 
