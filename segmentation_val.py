@@ -42,7 +42,7 @@ def LoadImage(name, path):
     # Convert dimensions to standard (n,height,width) --> (height,width,n)
     image = np.rollaxis(image_arr,0,3)
     mask = np.rollaxis(mask_arr,0,3)
-    
+
     return image, mask
 
 
@@ -115,13 +115,16 @@ if __name__ == '__main__':
     axs[2].imshow(masked_image)
     axs[2].set_title('Masked Image')
     plt.show()
-    
+
     model = keras.models.load_model("segmentation_model_sat2")
     model.summary()
 
-    max_show = 10
+    max_show = 1
     imgs, segs = next(val_gen)
     pred = model.predict(imgs)
+
+    print("here")
+    print(f"Confusion matrix: \n {tf.math.confusion_matrix(segs, pred)}")
 
     for i in range(max_show):
         _p = give_color_to_seg_img(np.argmax(pred[i], axis=-1))
