@@ -119,12 +119,9 @@ if __name__ == '__main__':
     model = keras.models.load_model("segmentation_model_sat2")
     model.summary()
 
-    max_show = 1
+    max_show = 10
     imgs, segs = next(val_gen)
     pred = model.predict(imgs)
-
-    print("here")
-    print(f"Confusion matrix: \n {tf.math.confusion_matrix(segs, pred)}")
 
     for i in range(max_show):
         _p = give_color_to_seg_img(np.argmax(pred[i], axis=-1))
@@ -137,11 +134,11 @@ if __name__ == '__main__':
         plt.figure(figsize=(12,6))
         plt.subplot(131)
         plt.title("Prediction")
-        plt.imshow(predimg)
+        plt.imshow(_p)
         plt.axis("off")
         plt.subplot(132)
         plt.title("Original")
-        plt.imshow(trueimg)
+        plt.imshow(_s)
         plt.axis("off")
         plt.subplot(133)
         plt.title("Original")
@@ -154,3 +151,33 @@ if __name__ == '__main__':
     """
     https://www.kaggle.com/ashishsingh226/semantic-segmentation-cityscapes
     """
+
+    print(f'preds: {pred[1]}')
+    print(f'segs: {segs[1]}')
+
+    #pred1 = np.argmax(pred[1], axis=-1)
+    #print(f'pred1: {pred1}')
+    #seg1 = np.argmax(segs[1], axis=-1)
+    #print(f'seg1: {seg1}')
+    predictions = []
+    segmentations = []
+    for i in range(len(pred)):
+        predictions.append(np.argmax(pred[i], axis=-1))
+        segmentations.append(np.argmax(segs[i], axis=-1))
+
+    print(f'preds: {predictions[1]}')
+    print(f'segs: {segmentations[1]}')
+
+    segmentations = np.array(segmentations)
+    predictions = np.array(predictions)
+
+    print(f"segmentation shape: {segmentations.shape}")
+    print(f"predictions shape: {predictions.shape}")
+
+    pred1D = predictions.reshape(-1)
+    segs1D = segmentations.reshape(-1)
+
+    print(f"segmentation 1d: {segs1D.shape}")
+    print(f"predictions 1d: {pred1D.shape}")
+
+    print(f"Confusion matrix: \n {tf.math.confusion_matrix(segs1D, pred1D, num_classes=N_CLASSES+1)}")
