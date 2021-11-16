@@ -16,6 +16,10 @@ import os
 import seaborn as sns
 import cv2
 from keras.callbacks import ModelCheckpoint
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
 
 EPOCHS=30
 BATCH_SIZE=10
@@ -181,3 +185,12 @@ if __name__ == '__main__':
     print(f"predictions 1d: {pred1D.shape}")
 
     print(f"Confusion matrix: \n {tf.math.confusion_matrix(segs1D, pred1D, num_classes=N_CLASSES+1)}")
+
+    precision = precision_score(segs1D, pred1D, average='weighted')
+    recall = recall_score(segs1D, pred1D, average='weighted')
+    print(f'Precision score: {precision}')
+    print(f'Recall score: {recall}')
+    print(f'F1 score: {(2*precision*recall)/(recall+precision)}')
+    print(f"Confusion matrix: \n {confusion_matrix(segs1D, pred1D)}")
+    f1=f1_score(segs1D, pred1D, average='weighted')
+    print(f'F1 score: {f1}')
