@@ -51,7 +51,8 @@ def LoadImage(name, path):
 
 
 def bin_image(mask):
-    bins = np.array([pixel_val for pixel_val in CLASSES.keys()+1])
+    print(CLASSES.keys())
+    bins = np.array([pixel_val+1 for pixel_val in CLASSES.keys()])
     new_mask = np.digitize(mask, bins)
     return new_mask
 
