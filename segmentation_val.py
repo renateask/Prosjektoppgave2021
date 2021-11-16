@@ -26,15 +26,15 @@ BATCH_SIZE=10
 HEIGHT=64
 WIDTH=64
 CLASSES = {
-    0: 'Water',
-    1: 'Trees',
-    2: 'Grass',
-    3: 'Flooded Vegetation',
-    4: 'Crops',
-    5: 'Scrub/Shrub',
-    6: 'Built Area',
-    7: 'Bare Ground',
-    8: 'Snow/Ice'
+    1: 'Water',
+    2: 'Trees',
+    3: 'Grass',
+    4: 'Flooded Vegetation',
+    5: 'Crops',
+    6: 'Scrub/Shrub',
+    7: 'Built Area',
+    8: 'Bare Ground',
+    9: 'Snow/Ice'
 }
 N_CLASSES=len(CLASSES)
 
@@ -52,7 +52,7 @@ def LoadImage(name, path):
 
 def bin_image(mask):
     print(CLASSES.keys())
-    bins = np.array([pixel_val+1 for pixel_val in CLASSES.keys()])
+    bins = np.array([pixel_val for pixel_val in CLASSES.keys()])
     new_mask = np.digitize(mask, bins)
     return new_mask
 
