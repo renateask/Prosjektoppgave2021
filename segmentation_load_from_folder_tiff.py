@@ -101,7 +101,7 @@ print(f"\n Label dictionary: {CLASSES}\n")
 model = keras.models.load_model("segmentation_model_sat2")
 model.summary()
 
-path = "ordered_tiles/2020-10-31:2020-11-30"
+path = "ordered_tiles/2020-07-31:2020-08-31"
 
 num_tiles = len(os.listdir(path))
 
@@ -195,4 +195,59 @@ image = np.concatenate((one, two, three, four, five, six, seven, eight, nine, te
 
 plt.imshow(image)
 plt.title(f"Prediction of image: {path}")
+plt.show()
+
+################# putting togeter the satelite image
+
+one = []
+two = []
+three = []
+four = []
+five = []
+six = []
+seven = []
+eight = []
+nine = []
+ten = []
+eleven = []
+twelve = []
+thirteen = []
+
+print(f'shape of imgs: {imgs.shape}')
+for i in range(14):
+    one.append((imgs[i]))
+    two.append((imgs[i+14]))
+    three.append((imgs[i+28]))
+    four.append((imgs[i+42]))
+    five.append((imgs[i+56]))
+    six.append((imgs[i+70]))
+    seven.append((imgs[i+84]))
+    eight.append((imgs[i+98]))
+    nine.append((imgs[i+112]))
+    ten.append((imgs[i+126]))
+    eleven.append((imgs[i+140]))
+    twelve.append((imgs[i+154]))
+    thirteen.append((imgs[i+168]))
+
+one = np.concatenate((one), axis=0)
+two = np.concatenate((two), axis=0)
+three = np.concatenate((three), axis=0)
+four = np.concatenate((four), axis=0)
+five = np.concatenate((five), axis=0)
+six = np.concatenate((six), axis=0)
+seven = np.concatenate((seven), axis=0)
+eight = np.concatenate((eight), axis=0)
+nine = np.concatenate((nine), axis=0)
+ten = np.concatenate((ten), axis=0)
+eleven = np.concatenate((eleven), axis=0)
+twelve = np.concatenate((twelve), axis=0)
+thirteen = np.concatenate((thirteen), axis=0)
+
+sat_image = np.concatenate((one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen), axis=1)
+
+fig, axs = plt.subplots(1, 2, figsize=(20,10))
+axs[0].imshow(image)
+axs[0].set_title('Segmented Image')
+axs[1].imshow(sat_image)
+axs[1].set_title('Satellite Image')
 plt.show()
