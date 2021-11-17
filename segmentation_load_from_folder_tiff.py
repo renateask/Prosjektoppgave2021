@@ -93,7 +93,7 @@ def DataLoader(path):
         if not name.startswith('.'):
             image = LoadImage(name, path)
             imgs.append(image)
-            print(image)
+            #print(image)
     return np.array(imgs)
 
 print(f"\n Label dictionary: {CLASSES}\n")
@@ -101,13 +101,13 @@ print(f"\n Label dictionary: {CLASSES}\n")
 model = keras.models.load_model("segmentation_model_sat2")
 model.summary()
 
-path = "ordered_tiles/2019-05-02:2019-06-02"
+path = "ordered_tiles/2020-10-31:2020-11-30"
 
 num_tiles = len(os.listdir(path))
 
 imgs = DataLoader(path)
-print('imgs', imgs)
-image = imgs[1]
+#print('imgs', imgs)
+image = imgs[7]
 
 
 plt.imshow(image)
@@ -120,20 +120,20 @@ IMAGE_SHAPE = (64, 64)
 predictions = []
 
 fig = plt.figure()
-plt.title("847cc28c918f50fcdebf46a90c340ac6")
+plt.title("path")
 fig.tight_layout(pad=50)
 
-print(f'shape of imgs: {imgs.shape}')
-print(f'shape of imgs[0]: {imgs[0].shape}')
+#print(f'shape of imgs: {imgs.shape}')
+#print(f'shape of imgs[0]: {imgs[0].shape}')
 
 preds = []
 for i in range(len(imgs)):
     tile = imgs[i]
-    print(f'shape of tile: {tile.shape}')
-    result = model.predict(tile)
+    #print(f'shape of tile: {tile.shape}')
+    result = model.predict(tile[np.newaxis, ...])
     pred = np.argmax(result[0], axis=-1)
     preds.append(pred)
-    print(f'pred: {pred.shape}')
+    #print(f'pred: {pred.shape}')
 
     _p = give_color_to_seg_img(pred)
 
@@ -194,4 +194,5 @@ image = np.concatenate((one, two, three, four, five, six, seven, eight, nine, te
 #print(f'shape of two: {two.shape}\n, two {two}')
 
 plt.imshow(image)
+plt.title(f"Prediction of image: {path}")
 plt.show()
