@@ -79,6 +79,7 @@ val_masks_dst = "validation/masks/"
 
 # Train/Val Split:
 train_imgs,val_imgs,train_masks,val_masks = train_test_split(path_images,path_masks,train_size=train_size)
+
 extension = '.'+os.path.split(train_imgs[0])[1].split('.')[1]
 if not os.path.exists(train_imgs_dst) and not os.path.exists(train_masks_dst)\
     and not os.path.exists(val_imgs_dst) and not os.path.exists(val_masks_dst):
@@ -98,11 +99,11 @@ if not os.path.exists(train_imgs_dst) and not os.path.exists(train_masks_dst)\
         count += 1
     count = 1
     for mask in train_masks:
-        shutil.copyfile(img,train_masks_dst+str(count)+extension)
+        shutil.copyfile(mask,train_masks_dst+str(count)+extension)
         count += 1
     count = 1
     for mask in val_masks:
-        shutil.copyfile(img,val_masks_dst+str(count)+extension)
+        shutil.copyfile(mask,val_masks_dst+str(count)+extension)
         count += 1
     
     
