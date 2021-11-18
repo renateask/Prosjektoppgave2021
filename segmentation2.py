@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
     model.summary()
 
-    tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU.png')
+    tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU2.png')
 
     ############################################# Training
 
