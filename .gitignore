@@ -144,6 +144,14 @@ data/masks
 data/train
 data/validation
 
+.DS_store
+
+segmentation_model_sat
+segmentation_model_sat2
+model2
+model1_preds
+logs
+seg_model_sat.hdf5
 segmentation_model_sat
 segmentation_model_sat2
 seg_model_sat.hdf5
