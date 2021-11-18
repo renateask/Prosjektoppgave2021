@@ -42,7 +42,7 @@ def LoadImage(name, path):
     # Convert dimensions to standard (n,height,width) --> (height,width,n)
     image = np.rollaxis(image_arr,0,3)
     mask = np.rollaxis(mask_arr,0,3)
-    
+
     return image, mask
 
 
@@ -91,8 +91,8 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
 
 if __name__ == '__main__':
-    train_folder = "data/train"
-    valid_folder = "data/validation"
+    train_folder = "data_2/train"
+    valid_folder = "data_2/validation"
 
     num_training_samples = len(os.listdir(train_folder+'/images'))
     num_valid_samples = len(os.listdir(valid_folder+'/images'))
@@ -115,8 +115,8 @@ if __name__ == '__main__':
     axs[2].imshow(masked_image)
     axs[2].set_title('Masked Image')
     plt.show()
-    
-    model = sm.Unet('resnet50', classes=7, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3])
+
+    model = sm.Unet('resnet50', classes=N_CLASSES, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 4])
 
     model.summary()
 

@@ -1,4 +1,3 @@
-
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -16,6 +15,10 @@ import os
 import seaborn as sns
 import cv2
 from keras.callbacks import ModelCheckpoint
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import f1_score
 
 EPOCHS=30
 BATCH_SIZE=10
@@ -42,11 +45,12 @@ def LoadImage(name, path):
     # Convert dimensions to standard (n,height,width) --> (height,width,n)
     image = np.rollaxis(image_arr,0,3)
     mask = np.rollaxis(mask_arr,0,3)
-    
+
     return image, mask
 
 
 def bin_image(mask):
+    print(CLASSES.keys())
     bins = np.array([pixel_val for pixel_val in CLASSES.keys()])
     new_mask = np.digitize(mask, bins)
     return new_mask
@@ -115,7 +119,7 @@ if __name__ == '__main__':
     axs[2].imshow(masked_image)
     axs[2].set_title('Masked Image')
     plt.show()
-    
+
     model = keras.models.load_model("segmentation_model_sat2")
     model.summary()
 
@@ -134,11 +138,11 @@ if __name__ == '__main__':
         plt.figure(figsize=(12,6))
         plt.subplot(131)
         plt.title("Prediction")
-        plt.imshow(predimg)
+        plt.imshow(_p)
         plt.axis("off")
         plt.subplot(132)
         plt.title("Original")
-        plt.imshow(trueimg)
+        plt.imshow(_s)
         plt.axis("off")
         plt.subplot(133)
         plt.title("Original")
@@ -151,3 +155,42 @@ if __name__ == '__main__':
     """
     https://www.kaggle.com/ashishsingh226/semantic-segmentation-cityscapes
     """
+
+    print(f'preds: {pred[1]}')
+    print(f'segs: {segs[1]}')
+
+    #pred1 = np.argmax(pred[1], axis=-1)
+    #print(f'pred1: {pred1}')
+    #seg1 = np.argmax(segs[1], axis=-1)
+    #print(f'seg1: {seg1}')
+    predictions = []
+    segmentations = []
+    for i in range(len(pred)):
+        predictions.append(np.argmax(pred[i], axis=-1))
+        segmentations.append(np.argmax(segs[i], axis=-1))
+
+    print(f'preds: {predictions[1]}')
+    print(f'segs: {segmentations[1]}')
+
+    segmentations = np.array(segmentations)
+    predictions = np.array(predictions)
+
+    print(f"segmentation shape: {segmentations.shape}")
+    print(f"predictions shape: {predictions.shape}")
+
+    pred1D = predictions.reshape(-1)
+    segs1D = segmentations.reshape(-1)
+
+    print(f"segmentation 1d: {segs1D.shape}")
+    print(f"predictions 1d: {pred1D.shape}")
+
+    print(f"Confusion matrix: \n {tf.math.confusion_matrix(segs1D, pred1D, num_classes=N_CLASSES+1)}")
+
+    precision = precision_score(segs1D, pred1D, average='weighted')
+    recall = recall_score(segs1D, pred1D, average='weighted')
+    print(f'Precision score: {precision}')
+    print(f'Recall score: {recall}')
+    print(f'F1 score: {(2*precision*recall)/(recall+precision)}')
+    print(f"Confusion matrix: \n {confusion_matrix(segs1D, pred1D)}")
+    f1=f1_score(segs1D, pred1D, average='weighted')
+    print(f'F1 score: {f1}')
