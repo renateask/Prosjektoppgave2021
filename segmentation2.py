@@ -1,11 +1,13 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
+from segmentation_models.models.unet import Unet
 import tensorflow as tf
 import pandas as pd
 import tensorflow_datasets as tfds
 import keras as keras
 import keras.layers as layers
+import keras.models as models
 import segmentation_models as sm
 sm.set_framework('tf.keras')
 sm.framework()
@@ -103,9 +105,7 @@ if __name__ == '__main__':
     imgs, segs = next(train_gen)
 
     image = imgs[7][:,:,:3]
-    print(f'image shape {image.shape}')
     mask = give_color_to_seg_img(np.argmax(segs[7], axis=-1))
-    print(f'mask shape {mask.shape}')
     masked_image = cv2.addWeighted(image, 0.5, mask, 0.5, 0)
 
     fig, axs = plt.subplots(1, 3, figsize=(20,20))
@@ -116,13 +116,21 @@ if __name__ == '__main__':
     #predimg = cv2.addWeighted(imgs[i]/255, 0.6, _p, 0.4, 0)
     axs[2].imshow(masked_image)
     axs[2].set_title('Masked Image')
-    plt.show()
+    # plt.show()
 
-    model = sm.Unet('resnet50', classes=N_CLASSES, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 4])
+
+    n_channels = imgs[0].shape[-1]
+    base_model = sm.Unet('resnet50', classes=N_CLASSES, activation='softmax', encoder_weights='imagenet')
+
+    inp = layers.Input(shape=(None, None, n_channels))
+    l1 = layers.Conv2D(3, (1, 1))(inp) # map N channels data to 3 channels
+    out = base_model(l1)
+
+    model = models.Model(inp, out, name=base_model.name)
 
     model.summary()
 
-    tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU2.png')
+    tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU_4band.png')
 
     ############################################# Training
 
@@ -135,7 +143,7 @@ if __name__ == '__main__':
     log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-    checkpoint = ModelCheckpoint('seg_model_sat.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+    checkpoint = ModelCheckpoint('seg_model_sat_4band.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 
     TRAIN_STEPS = num_training_samples//BATCH_SIZE+1
     VAL_STEPS = num_valid_samples//BATCH_SIZE+1
@@ -153,7 +161,7 @@ if __name__ == '__main__':
         validation_steps=VAL_STEPS,
     )
 
-    model.save("segmentation_model_sat")
+    model.save("segmentation_model_sat_4band")
 
     """
     history_frame = pd.DataFrame(history.history)
