@@ -52,15 +52,16 @@ def tile_and_save(image_path,size=(64,64),data='image'):
     tile (bool) :: if True --> tile image and save image tiles
     """
     img = rasterio.open(image_path)
+    region = os.path.split(image_path)[1].split('_')[0]
     if data == 'image':
         out_path = os.path.split(image_path)[0]+'/tiled_images/'
         if not os.path.exists(out_path):
             os.makedirs(out_path)
     elif data == 'mask':
-        out_path = os.path.split(image_path)[0]+'/tiled_masks/'
+        out_path = os.path.split(image_path)[0]+'/tiled_masks_'+region+'/'
         if not os.path.exists(out_path):
             os.makedirs(out_path)
-    tile_write(img,output_path=out_path)
+    tile_write(img,output_path=out_path,size=size)
     img.close()
 
 def Gtiff2rgb(image_path,outFormat='jpeg',bands=3):
@@ -137,16 +138,18 @@ def reproject_raster(raster_path,crs='EPSG:4326'):
     dstRst.close()
     srcRst.close()
     
-def crop_GTiff(image_path,bbox):
+def crop_GTiff(image_path,bbox,description):
     # Configure bbox: coordinate input: (xmin,ymin,xmax,ymax)
     # GDAL expects: (xmin,ymax,xmax,ymin)
+    print(f"Cropping: {description}")
     root_path = os.path.split(image_path)[0]
     img = os.path.split(image_path)[1]
     image_format = img.split('.')[1]
     if image_format != 'tiff' and image_format != 'tif':
         raise Exception(f"[FORMAT ERROR] Input image needs to be of type .tiff / .tif, but is instead .{image_format}")
 
-    out_path = image_path.replace('.tif','_crop.tif')
+    name = description+'_'+img.split('_')[1].split('.')[0]+'_crop.tif'
+    out_path = root_path+'/'+name
     if not os.path.exists(out_path):
         try:
             xmin = bbox[0]

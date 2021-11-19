@@ -6,26 +6,36 @@ from sklearn.model_selection import train_test_split
 # Define train/val split
 train_size = 0.85 # 85%
 
-# Define images too cloudy to make the cut (should automate this if time)
-too_cloudy = [
-    "images/2019-05-02:2019-06-02",
-    "images/2020-07-01:2020-07-31"
-]
-
 root_images = "images/"
-image_dirs = [root_images+f+"/tiled_images/" for f in os.listdir(root_images) if not f.startswith('.')\
-    and root_images+f not in too_cloudy]
+image_dirs = [root_images+f+"/tiled_images/" for f in os.listdir(root_images) if not f.startswith('.')]
+order_of_regions = [region.split('/')[1].split('_')[0] for region in image_dirs]
 path_images = []
 for directory in image_dirs:
     for tile in os.listdir(directory):
         if tile.endswith(".tif"): path_images.append(directory+tile)
 
-root_masks = "masks/tiled_masks/"
-path_temp_masks = [root_masks + f for f in os.listdir(root_masks) if f.endswith(".tif")]
-path_masks = path_temp_masks
-for i in range(len(image_dirs)-1):
-    path_masks = path_masks + path_temp_masks
-    
+root_masks = "masks/"
+mask_dirs = []
+path_masks = []
+for region in order_of_regions:
+    dir = root_masks+'tiled_masks_'+region+'/'
+    mask_dirs.append(dir)
+for directory in mask_dirs:
+    for tile in os.listdir(directory):
+        if tile.endswith(".tif"): path_masks.append(directory+tile) 
+
+# Check if order matches:
+for img, mask in zip(path_images,path_masks):
+    region_img = img.split('/')[1].split('_')[0]
+    region_mask = mask.split('/')[1].split('_')[2]
+    tile_img = os.path.split(img)[1]
+    tile_mask = os.path.split(mask)[1]
+    if not region_img == region_mask:
+        raise Exception("Order of regions of masks does not correspond with that of images.")
+    if not tile_img == tile_mask:
+        raise Exception("Order of tiles of masks does not correspond with that of images.")
+
+
 # Build dataset:
 train_imgs_dst = "train/images/"
 train_masks_dst = "train/masks/"

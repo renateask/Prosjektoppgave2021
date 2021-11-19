@@ -95,34 +95,56 @@ mask_path = 'masks/esriNOR.tif'
 if not os.path.exists('masks/esriNOR_proj.tif'):
     rpt.reproject_raster(mask_path,crs='EPSG:4326')
 
-# Crop reprojected mask raster
+# Crop reprojected mask raster to match the various images
 mask_reprojected_path = 'masks/esriNOR_proj.tif'
-# Define EPSG4326:WGS84 coordinate bounding box equal to that of satellite raster
-box = (10.194969,63.154200,10.371094,63.233937)
+# Define EPSG4326:WGS84 coordinate bounding boxes equal to that of satellite rasters
+bboxes = {
+    (8.261719, 61.834603, 8.437844, 61.91434): 'otta',
+    (9.722471, 63.17919, 9.898596, 63.258927): 'orkla',
+    (7.626228, 62.499004, 7.802353, 62.578741): 'rauma',
+    (6.681747, 61.690523, 6.857872, 61.77026): 'jostedal',
+    (11.338234, 60.923926, 11.514359, 61.003663): 'elverum',
+    (11.074219, 63.184882, 11.250344, 63.264619): 'selbu',
+    (10.242348, 63.012847, 10.418473, 63.092584): 'støren',
+    (6.20676, 59.922248, 6.382885, 60.001985): 'fonna',
+    (10.402336, 63.272719, 10.578461, 63.352456): 'nidelven',
+    (8.525219, 62.643, 8.701344, 62.722737): 'sunndal',
+    (10.196171, 63.068491, 10.372296, 63.148228): 'hovin',
+    (11.193352, 59.444115, 11.369477, 59.523852): 'glomma'
+}
+
 # Crop
-print("I'm here!")
-rpt.crop_GTiff(mask_reprojected_path,bbox=box)
-print("After")
+for box,region in bboxes.items():
+    rpt.crop_GTiff(mask_reprojected_path,bbox=box,description=region)
 
-# Match resolution of mask to satelitte image:
-mask_clip_reproj_path = 'masks/esriNOR_proj_crop.tif'
-image = image_paths[0]
-rpt.match_resolution(image,mask_clip_reproj_path)
+# Match resolution of masks to corresponding satelitte images:
+mask_clip_reproj_paths = ['masks/'+f for f in os.listdir('masks') if f.endswith('_proj_crop.tif')]
+    
+for mask in mask_clip_reproj_paths:
+    region = os.path.split(mask)[1].split('_')[0]
+    for img in image_paths_rgb:
+        if os.path.split(img)[1].split('_')[0] == region:
+            image = img
+            break
+    rpt.match_resolution(image,mask)
 
-# Tile matched mask raster:
-processed_mask_path = 'masks/esriNOR_projcrop_matched.tif'
-rpt.tile_and_save(processed_mask_path,size=(64,64),data='mask')
+# Tile matched mask rasters:
+processed_mask_paths = ['masks/'+f for f in os.listdir('masks') if f.endswith('_projcrop_matched.tif')]
+
+for mask in processed_mask_paths:
+    rpt.tile_and_save(mask,size=(64,64),data='mask')
         
-# Convert masks to JPEG/PNG:
+# # Convert masks to JPEG/PNG:
 
-# Full raster
-rpt.Gtiff2rgb(processed_mask_path,outFormat='jpeg',bands=1)
+# # Full rasters
 
-# Tiles
-mask_tile_path = 'masks/tiled_masks/'
-mask_tiles = [mask_tile_path + f for f in os.listdir(mask_tile_path) if f.endswith('.tif')]
-for tile in mask_tiles:
-    rpt.Gtiff2rgb(tile,outFormat='jpeg',bands=1)
+# rpt.Gtiff2rgb(processed_mask_path,outFormat='jpeg',bands=1)
+
+# # Tiles
+# mask_tile_path = 'masks/tiled_masks/'
+# mask_tiles = [mask_tile_path + f for f in os.listdir(mask_tile_path) if f.endswith('.tif')]
+# for tile in mask_tiles:
+#     rpt.Gtiff2rgb(tile,outFormat='jpeg',bands=1)
 
 
 
