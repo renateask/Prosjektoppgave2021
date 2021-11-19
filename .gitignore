@@ -143,8 +143,11 @@ data/images
 data/masks
 data/train
 data/validation
-data_2/train
-data_2/validation
+data/__pycache__
+data/.DS_store
+data_2(outdated)/
+data(outdated)/
+
 .DS_store
 
 segmentation_model_sat
@@ -164,4 +167,3 @@ logs
 RGB
 test/RGB0
 ordered_tiles
-ordered_tiles 2
