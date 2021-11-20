@@ -14,7 +14,7 @@ def fetch_sorted_tiles(path_to_tiles):
     pixel_index_map = {}
     for idx,pixel in enumerate(tile_pixel_values):
         pixel_index_map[pixel] = idx
-    tiles = np.empty((13,14), dtype=object)
+    tiles = np.empty((14,13), dtype=object)
     for tile in tile_names:
         x,y = tile_xy(tile)
         x = pixel_index_map[x]

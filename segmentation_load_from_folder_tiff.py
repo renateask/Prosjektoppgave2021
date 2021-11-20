@@ -98,7 +98,7 @@ def DataLoader(path):
 
 print(f"\n Label dictionary: {CLASSES}\n")
 
-model = keras.models.load_model("segmentation_model_sat2")
+model = keras.models.load_model("segmentation_model_sat2")          ########## Segmentation Model
 model.summary()
 
 path = "ordered_tiles 2\ordered_tiles\8cd99dde869dfa179b523e5122d60831"
@@ -157,22 +157,31 @@ ten = []
 eleven = []
 twelve = []
 thirteen = []
+fourteen = []
+
+N = 13
+
+# Plots 13x13 tiles
 
 print(f'shape of predictions: {predictions.shape}')
-for i in range(14):
+for i in range(N):
     one.append(give_color_to_seg_img(predictions[i]))
-    two.append(give_color_to_seg_img(predictions[i+14]))
-    three.append(give_color_to_seg_img(predictions[i+28]))
-    four.append(give_color_to_seg_img(predictions[i+42]))
-    five.append(give_color_to_seg_img(predictions[i+56]))
-    six.append(give_color_to_seg_img(predictions[i+70]))
-    seven.append(give_color_to_seg_img(predictions[i+84]))
-    eight.append(give_color_to_seg_img(predictions[i+98]))
-    nine.append(give_color_to_seg_img(predictions[i+112]))
-    ten.append(give_color_to_seg_img(predictions[i+126]))
-    eleven.append(give_color_to_seg_img(predictions[i+140]))
-    twelve.append(give_color_to_seg_img(predictions[i+154]))
-    thirteen.append(give_color_to_seg_img(predictions[i+168]))
+    two.append(give_color_to_seg_img(predictions[i+N]))
+    three.append(give_color_to_seg_img(predictions[i+N*2]))
+    four.append(give_color_to_seg_img(predictions[i+N*3]))
+    five.append(give_color_to_seg_img(predictions[i+N*4]))
+    six.append(give_color_to_seg_img(predictions[i+N*5]))
+    seven.append(give_color_to_seg_img(predictions[i+N*6]))
+    eight.append(give_color_to_seg_img(predictions[i+N*7]))
+    nine.append(give_color_to_seg_img(predictions[i+N*8]))
+    ten.append(give_color_to_seg_img(predictions[i+N*9]))
+    eleven.append(give_color_to_seg_img(predictions[i+N*10]))
+    twelve.append(give_color_to_seg_img(predictions[i+N*11]))
+    thirteen.append(give_color_to_seg_img(predictions[i+N*12]))
+    #thirteen.append(give_color_to_seg_img(predictions[i+N*13]))
+    #if i == 182:
+    #    i = i-1
+    #fourteen.append(give_color_to_seg_img(predictions[i+N*14]))
 
 
 #two = np.concatenate((give_color_to_seg_img(preds[0]),give_color_to_seg_img(preds[1]), give_color_to_seg_img(preds[2]), give_color_to_seg_img(preds[4]), give_color_to_seg_img(preds[5])), axis=0)
@@ -189,9 +198,25 @@ ten = np.concatenate((ten), axis=0)
 eleven = np.concatenate((eleven), axis=0)
 twelve = np.concatenate((twelve), axis=0)
 thirteen = np.concatenate((thirteen), axis=0)
+#fourteen = np.concatenate((fourteen), axis=0)
+
+print(f'shape of 1: {one.shape}\n, two {N}')
+print(f'shape of 2: {two.shape}\n, two {N}')
+print(f'shape of 3: {three.shape}\n, two {N}')
+print(f'shape of 4: {four.shape}\n, two {N}')
+print(f'shape of 5: {five.shape}\n, two {N}')
+print(f'shape of 6: {six.shape}\n, two {N}')
+print(f'shape of 7: {seven.shape}\n, two {N}')
+print(f'shape of 8: {eight.shape}\n, two {N}')
+print(f'shape of 9: {nine.shape}\n, two {N}')
+print(f'shape of 10: {ten.shape}\n, two {N}')
+print(f'shape of 11: {eleven.shape}\n, two {N}')
+print(f'shape of 12: {twelve.shape}\n, two {N}')
+print(f'shape of 13: {thirteen.shape}\n, two {N}')
+
 
 image = np.concatenate((one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen), axis=1)
-#print(f'shape of two: {two.shape}\n, two {two}')
+
 
 plt.imshow(image)
 plt.title(f"Prediction of image: {path}")
@@ -214,20 +239,20 @@ twelve = []
 thirteen = []
 
 print(f'shape of imgs: {imgs.shape}')
-for i in range(14):
+for i in range(N):
     one.append((imgs[i]))
-    two.append((imgs[i+14]))
-    three.append((imgs[i+28]))
-    four.append((imgs[i+42]))
-    five.append((imgs[i+56]))
-    six.append((imgs[i+70]))
-    seven.append((imgs[i+84]))
-    eight.append((imgs[i+98]))
-    nine.append((imgs[i+112]))
-    ten.append((imgs[i+126]))
-    eleven.append((imgs[i+140]))
-    twelve.append((imgs[i+154]))
-    thirteen.append((imgs[i+168]))
+    two.append((imgs[i+N]))
+    three.append((imgs[i+N*2]))
+    four.append((imgs[i+N*3]))
+    five.append((imgs[i+N*4]))
+    six.append((imgs[i+N*5]))
+    seven.append((imgs[i+N*6]))
+    eight.append((imgs[i+N*7]))
+    nine.append((imgs[i+N*8]))
+    ten.append((imgs[i+N*9]))
+    eleven.append((imgs[i+N*10]))
+    twelve.append((imgs[i+N*11]))
+    thirteen.append((imgs[i+N*12]))
 
 one = np.concatenate((one), axis=0)
 two = np.concatenate((two), axis=0)
