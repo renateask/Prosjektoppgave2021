@@ -101,7 +101,7 @@ print(f"\n Label dictionary: {CLASSES}\n")
 model = keras.models.load_model("segmentation_model_sat2")
 model.summary()
 
-path = "ordered_tiles/2020-07-31:2020-08-31"
+path = "ordered_tiles 2\ordered_tiles\8cd99dde869dfa179b523e5122d60831"
 
 num_tiles = len(os.listdir(path))
 

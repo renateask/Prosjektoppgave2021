@@ -19,8 +19,8 @@ import seaborn as sns
 import cv2
 from keras.callbacks import ModelCheckpoint
 
-EPOCHS=30
-BATCH_SIZE=10
+EPOCHS=50
+BATCH_SIZE=20
 HEIGHT=64
 WIDTH=64
 CLASSES = {

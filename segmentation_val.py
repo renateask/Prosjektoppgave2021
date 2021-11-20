@@ -95,8 +95,8 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
 
 if __name__ == '__main__':
-    train_folder = "data/train"
-    valid_folder = "data/validation"
+    train_folder = "data_3/train"
+    valid_folder = "data_3/validation"
 
     num_training_samples = len(os.listdir(train_folder+'/images'))
     num_valid_samples = len(os.listdir(valid_folder+'/images'))
@@ -120,7 +120,7 @@ if __name__ == '__main__':
     axs[2].set_title('Masked Image')
     plt.show()
 
-    model = keras.models.load_model("segmentation_model_sat2")
+    model = keras.models.load_model("segmentation_model_sat")
     model.summary()
 
     max_show = 10
