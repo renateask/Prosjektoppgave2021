@@ -164,3 +164,7 @@ logs
 RGB
 test/RGB0
 ordered_tiles
+
+data_3
+segmentation_model_sat_4band
+seg_model_sat_4band.hdf5
