@@ -35,7 +35,7 @@ for img in image_paths:
     with rasterio.open(img) as dataset:
         image = dataset.read((4,3,2))
         image = image/255.0 # Normalize np-array RGB-values
-        image = rc.sigmoidal(image,6,0.3)
+        # image = rc.sigmoidal(image,6,0.3)
     dataset.close()
     dat.close()
 
