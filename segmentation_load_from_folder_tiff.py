@@ -98,10 +98,10 @@ def DataLoader(path):
 
 print(f"\n Label dictionary: {CLASSES}\n")
 
-model = keras.models.load_model("segmentation_model_sat2")          ########## Segmentation Model
+model = keras.models.load_model("segmentation_model_sat-2-2")          ########## Segmentation Model
 model.summary()
 
-path = "ordered_tiles 2\ordered_tiles\8cd99dde869dfa179b523e5122d60831"
+path = "data_4/validation/images"
 
 num_tiles = len(os.listdir(path))
 
@@ -144,6 +144,11 @@ plt.show()
 
 predictions = np.array(preds)
 
+plt.imshow(give_color_to_seg_img(predictions[25]))
+plt.title('predictions[25]')
+plt.show()
+
+
 one = []
 two = []
 three = []
@@ -159,7 +164,7 @@ twelve = []
 thirteen = []
 fourteen = []
 
-N = 13
+N = 14
 
 # Plots 13x13 tiles
 
