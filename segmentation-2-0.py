@@ -1,13 +1,11 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from segmentation_models.models.unet import Unet
 import tensorflow as tf
 import pandas as pd
 import tensorflow_datasets as tfds
 import keras as keras
 import keras.layers as layers
-import keras.models as models
 import segmentation_models as sm
 sm.set_framework('tf.keras')
 sm.framework()
@@ -18,21 +16,23 @@ import os
 import seaborn as sns
 import cv2
 from keras.callbacks import ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
 
-EPOCHS=50
-BATCH_SIZE=20
+EPOCHS1=30
+EPOCHS2=15
+BATCH_SIZE=10
 HEIGHT=64
 WIDTH=64
 CLASSES = {
-    0: 'Water',
-    1: 'Trees',
-    2: 'Grass',
-    3: 'Flooded Vegetation',
-    4: 'Crops',
-    5: 'Scrub/Shrub',
-    6: 'Built Area',
-    7: 'Bare Ground',
-    8: 'Snow/Ice'
+    1: 'Water',
+    2: 'Trees',
+    3: 'Grass',
+    4: 'Flooded Vegetation',
+    5: 'Crops',
+    6: 'Scrub/Shrub',
+    7: 'Built Area',
+    8: 'Bare Ground',
+    9: 'Snow/Ice'
 }
 N_CLASSES=len(CLASSES)
 
@@ -93,8 +93,8 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
 
 if __name__ == '__main__':
-    train_folder = "data_2/train"
-    valid_folder = "data_2/validation"
+    train_folder = "data_4/train"
+    valid_folder = "data_4/validation"
 
     num_training_samples = len(os.listdir(train_folder+'/images'))
     num_valid_samples = len(os.listdir(valid_folder+'/images'))
@@ -104,9 +104,9 @@ if __name__ == '__main__':
 
     imgs, segs = next(train_gen)
 
-    image = imgs[7][:,:,:3]
+    image = imgs[7]
     mask = give_color_to_seg_img(np.argmax(segs[7], axis=-1))
-    masked_image = cv2.addWeighted(image, 0.5, mask, 0.5, 0)
+    masked_image = mask #cv2.addWeighted(image, 0.5, mask, 0.5, 0)
 
     fig, axs = plt.subplots(1, 3, figsize=(20,20))
     axs[0].imshow(image)
@@ -116,26 +116,18 @@ if __name__ == '__main__':
     #predimg = cv2.addWeighted(imgs[i]/255, 0.6, _p, 0.4, 0)
     axs[2].imshow(masked_image)
     axs[2].set_title('Masked Image')
-    # plt.show()
+    plt.show()
 
-
-    n_channels = imgs[0].shape[-1]
-    base_model = sm.Unet('resnet50', classes=N_CLASSES, activation='softmax', encoder_weights='imagenet')
-
-    inp = layers.Input(shape=(None, None, n_channels))
-    l1 = layers.Conv2D(3, (1, 1))(inp) # map N channels data to 3 channels
-    out = base_model(l1)
-
-    model = models.Model(inp, out, name=base_model.name)
+    model = sm.Unet('resnet50', classes=N_CLASSES, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3], encoder_freeze=True)
 
     model.summary()
 
-    tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU_4band.png')
+    tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU-2-0.png')
 
     ############################################# Training
 
     model.compile(
-        optimizer='adam',
+        optimizer=Adam(),
         loss='categorical_crossentropy',
         metrics=['categorical_crossentropy', 'acc'],
     )
@@ -143,7 +135,7 @@ if __name__ == '__main__':
     log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-    checkpoint = ModelCheckpoint('seg_model_sat_4band.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+    checkpoint = ModelCheckpoint('seg_model_sat-2-0.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 
     TRAIN_STEPS = num_training_samples//BATCH_SIZE+1
     VAL_STEPS = num_valid_samples//BATCH_SIZE+1
@@ -153,7 +145,7 @@ if __name__ == '__main__':
     history = model.fit(
         train_gen,
         validation_data=val_gen,
-        epochs=EPOCHS,
+        epochs=EPOCHS1,
         steps_per_epoch=TRAIN_STEPS,
         callbacks=[checkpoint, tensorboard_callback],
         workers=0,
@@ -161,7 +153,30 @@ if __name__ == '__main__':
         validation_steps=VAL_STEPS,
     )
 
-    model.save("segmentation_model_sat_4band")
+    sm.utils.set_trainable(model, recompile=False)
+
+    model.summary()
+
+    model.compile(
+        optimizer=Adam(learning_rate=0.000001),
+        loss='categorical_crossentropy',
+        metrics=['categorical_crossentropy', 'acc'],
+    )
+
+    
+
+    history = model.fit(
+        train_gen,
+        validation_data=val_gen,
+        epochs=EPOCHS2,
+        steps_per_epoch=TRAIN_STEPS,
+        callbacks=[checkpoint, tensorboard_callback],
+        workers=0,
+        verbose=1,
+        validation_steps=VAL_STEPS,
+    )
+
+    model.save("segmentation_model_sat-2-2")
 
     """
     history_frame = pd.DataFrame(history.history)
