@@ -10,11 +10,12 @@ def tile_xy(tile_name):
 
 def fetch_sorted_tiles(path_to_tiles):
     tile_names = [tile for tile in os.listdir(path_to_tiles) if tile.endswith(".tif")]
+    print(path_to_tiles)
     tile_pixel_values = [*range(0,833,64)]
     pixel_index_map = {}
     for idx,pixel in enumerate(tile_pixel_values):
         pixel_index_map[pixel] = idx
-    tiles = np.empty((14,13), dtype=object)
+    tiles = np.empty((13,14), dtype=object)
     for tile in tile_names:
         x,y = tile_xy(tile)
         x = pixel_index_map[x]
@@ -25,8 +26,8 @@ def fetch_sorted_tiles(path_to_tiles):
 
 if __name__ == '__main__':
     img_dir = "images/"
-    ordered_tiles_dir = "ordered_tiles/"
-    image_dir = [f for f in os.listdir("images") if not f.startswith('.')]
+    ordered_tiles_dir = "test/"
+    image_dir = [f for f in os.listdir("images") if '_test_' in f]
     if not os.path.exists(ordered_tiles_dir):
         for dir in image_dir:
             root_dir = ordered_tiles_dir+dir

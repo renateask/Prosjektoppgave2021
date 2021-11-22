@@ -91,8 +91,8 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
 
 if __name__ == '__main__':
-    train_folder = "data_3/train"
-    valid_folder = "data_3/validation"
+    train_folder = "data/train"
+    valid_folder = "data/validation"
 
     num_training_samples = len(os.listdir(train_folder+'/images'))
     num_valid_samples = len(os.listdir(valid_folder+'/images'))
@@ -102,8 +102,8 @@ if __name__ == '__main__':
 
     imgs, segs = next(train_gen)
 
-    image = imgs[7]
-    mask = give_color_to_seg_img(np.argmax(segs[7], axis=-1))
+    image = imgs[6]
+    mask = give_color_to_seg_img(np.argmax(segs[6], axis=-1))
     masked_image = cv2.addWeighted(image, 0.5, mask, 0.5, 0)
 
     fig, axs = plt.subplots(1, 3, figsize=(20,20))
@@ -111,7 +111,6 @@ if __name__ == '__main__':
     axs[0].set_title('Original Image')
     axs[1].imshow(mask)
     axs[1].set_title('Segmentation Mask')
-    #predimg = cv2.addWeighted(imgs[i]/255, 0.6, _p, 0.4, 0)
     axs[2].imshow(masked_image)
     axs[2].set_title('Masked Image')
     plt.show()
