@@ -6,13 +6,20 @@ from sklearn.model_selection import train_test_split
 # Define train/val split
 train_size = 0.85 # 85%
 
+too_inaccurate = open('too_inaccurate.txt', 'r')
+too_cloudy = too_inaccurate.readlines()
+too_cloudy = [f.split('/')[1] for f in too_cloudy]
+too_inaccurate.close()
+
 root_images = "images/"
-image_dirs = [root_images+f+"/tiled_images/" for f in os.listdir(root_images) if not f.startswith('.')]
+image_dirs = [root_images+f+"/tiled_images/" for f in os.listdir(root_images) if not f.startswith('.') and\
+    '_test_' not in f and f not in too_cloudy]
 order_of_regions = [region.split('/')[1].split('_')[0] for region in image_dirs]
 path_images = []
+
 for directory in image_dirs:
     for tile in os.listdir(directory):
-        if tile.endswith(".tif"): path_images.append(directory+tile)
+        if tile.endswith(".tif") and tile.startswith('tile'): path_images.append(directory+tile)
 
 root_masks = "masks/"
 mask_dirs = []
@@ -22,7 +29,7 @@ for region in order_of_regions:
     mask_dirs.append(dir)
 for directory in mask_dirs:
     for tile in os.listdir(directory):
-        if tile.endswith(".tif"): path_masks.append(directory+tile) 
+        if tile.endswith(".tif") and tile.startswith('tile'): path_masks.append(directory+tile) 
 
 # Check if order matches:
 for img, mask in zip(path_images,path_masks):

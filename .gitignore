@@ -145,6 +145,7 @@ data/train
 data/validation
 data/__pycache__
 data/.DS_store
+data/test
 data_2(outdated)/
 data(outdated)/
 

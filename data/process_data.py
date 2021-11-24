@@ -29,7 +29,7 @@ for image_dir in image_dir_paths:
             image = image_dir + '/' + f
             image_paths.append(image)
 
-# Apply sigmoidal color corrections to RGB-bands, this betters contrasts, but some atmospheric effects are more prominent in some images it seems
+# Apply sigmoidal color corrections to RGB-bands, this betters contrasts, but some atmospheric effects are more prominent in some images it seems.
 for img in image_paths:
     dat = rasterio.open(img)
     with rasterio.open(img) as dataset:
@@ -81,11 +81,11 @@ for image in image_paths_rgb:
     rpt.Gtiff2rgb(image,outFormat='jpeg',bands=3)
 
 # Tiles
-for image_dir in image_dir_paths:
-    tile_path = image_dir + '/tiled_images/'
-    tiles = [tile_path+f for f in os.listdir(tile_path) if f.endswith('.tif')]
-    for tile in tiles:
-        rpt.Gtiff2rgb(tile,outFormat='jpeg',bands=3)
+# for image_dir in image_dir_paths:
+#     tile_path = image_dir + '/tiled_images/'
+#     tiles = [tile_path+f for f in os.listdir(tile_path) if f.endswith('.tif')]
+#     for tile in tiles:
+#         rpt.Gtiff2rgb(tile,outFormat='jpeg',bands=3)
 
 
 # Define mask locations
@@ -110,7 +110,10 @@ bboxes = {
     (10.402336, 63.272719, 10.578461, 63.352456): 'nidelven',
     (8.525219, 62.643, 8.701344, 62.722737): 'sunndal',
     (10.196171, 63.068491, 10.372296, 63.148228): 'hovin',
-    (11.193352, 59.444115, 11.369477, 59.523852): 'glomma'
+    (11.193352, 59.444115, 11.369477, 59.523852): 'glomma',
+    (10.283203, 63.352283, 10.459328, 63.43202): 'trondheim',
+    (10.194969, 63.1542, 10.371094, 63.233937): 'melhus_test',
+    (10.634422, 62.227476, 10.810547, 62.307213): 'tynset_test'
 }
 
 # Crop
