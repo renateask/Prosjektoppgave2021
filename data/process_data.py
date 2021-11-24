@@ -29,13 +29,13 @@ for image_dir in image_dir_paths:
             image = image_dir + '/' + f
             image_paths.append(image)
 
-# Apply sigmoidal color corrections to RGB-bands, this betters contrasts, but some atmospheric effects are more prominent in some images it seems (temporarily removed color corr.)
+# Apply sigmoidal color corrections to RGB-bands, this betters contrasts, but some atmospheric effects are more prominent in some images it seems.
 for img in image_paths:
     dat = rasterio.open(img)
     with rasterio.open(img) as dataset:
         image = dataset.read((4,3,2))
         image = image/255.0 # Normalize np-array RGB-values
-        # image = rc.sigmoidal(image,6,0.3)
+        image = rc.sigmoidal(image,6,0.3)
     dataset.close()
     dat.close()
 

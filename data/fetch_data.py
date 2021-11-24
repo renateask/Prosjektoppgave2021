@@ -63,23 +63,23 @@ if __name__ == '__main__':
         coords_wgs84_tynset_test = [10.634422,62.227476]
         coords_wgs84_tynset_test += [round(coords_wgs84_tynset_test[0]+x_diff,6), round(coords_wgs84_tynset_test[1]+y_diff,6)]
         
-        coords_wgs84_otta = [8.261719,61.834603]
+        # coords_wgs84_otta = [8.261719,61.834603] snow innaccuracies in labels
         coords_wgs84_orkla = [9.722471,63.179190]
-        coords_wgs84_rauma = [7.626228,62.499004]
+        # coords_wgs84_rauma = [7.626228,62.499004] snow innaccuracies in labels
         # coords_wgs84_jostedal = [6.681747,61.690523] snow conditions too varying to include
         coords_wgs84_selbu = [11.074219,63.184882]
         coords_wgs84_elverum = [11.338234,60.923926]
         coords_wgs84_støren = [10.242348,63.012847]
-        coords_wgs84_fonna = [6.206760,59.922248]
+        # coords_wgs84_fonna = [6.206760,59.922248] snow innaccuracies in labels
         coords_wgs84_nidelven = [10.402336,63.272719]
         # coords_wgs84_sunndal = [8.525219,62.643000] snow contitions too varying to include
         coords_wgs84_hovin = [10.196171,63.068491]
         coords_wgs84_glomma = [11.193352,59.444115]
         coords_wgs84_trondheim = [10.283203,63.352283]
         
-        coords_train_val = [coords_wgs84_orkla, coords_wgs84_otta, coords_wgs84_rauma, coords_wgs84_selbu,
-                            coords_wgs84_elverum, coords_wgs84_støren, coords_wgs84_fonna, coords_wgs84_nidelven,
-                            coords_wgs84_hovin, coords_wgs84_glomma, coords_wgs84_trondheim]
+        coords_train_val = [coords_wgs84_orkla, coords_wgs84_selbu, coords_wgs84_elverum, 
+                            coords_wgs84_støren, coords_wgs84_nidelven, coords_wgs84_hovin, 
+                            coords_wgs84_glomma, coords_wgs84_trondheim]
         
         coords_test = [coords_wgs84_melhus_test, coords_wgs84_tynset_test]
         

@@ -6,24 +6,14 @@ from sklearn.model_selection import train_test_split
 # Define train/val split
 train_size = 0.85 # 85%
 
-esri_innacurate = [
-    'elverum_2020-10-01:2020-10-31', 'elverum_2019-07-01:2019-07-31', 'elverum_2019-10-01:2019-10-31',
-    'elverum_2017-07-01:2017-07-31', 'fonna_2021-07-01:2021-07-31', 'fonna_2021-08-01:2021-08-31',
-    'fonna_2020-07-01:2020-07-31', 'fonna_2019-07-01:2019-07-31', 'fonna_2019-08-01:2019-08-31',
-    'fonna_2018-08-01:2018-08-31', 'fonna_2018-07-01:2018-07-31', 'fonna_2017-08-01:2017-08-31',
-    'hovin_2021-09-01:2021-09-30', 'hovin_2020-09-01:2020-09-30', 'nidelven_2019-06-01:2019-06-30',
-    'nidelven_2018-08-01:2018-08-31', 'orkla_2019-06-01:2019-06-30', 'orkla_2018-08-01:2018-08-31',
-    'otta_2021-09-01:2021-09-30', 'otta_2020-09-01:2020-09-30', 'otta_2019-07-01:2019-07-31',
-    'otta_2019-09-01:2019-09-30', 'otta_2017-09-01:2017-09-30', 'otta_2018-09-01:2018-09-30',
-    'rauma_2017-10-01:2017-10-31', 'rauma_2018-10-01:2018-10-31', 'rauma_2019-10-01:2019-10-31',
-    'rauma_2020-06-01:2020-06-30', 'rauma_2020-10-01:2020-10-31', 'rauma_2021-06-01:2021-06-30',
-    'rauma_2021-10-01:2021-10-31', 'selbu_2017-06-01:2017-06-30', 'selbu_2019-06-01:2019-06-30',
-    'støren_2018-09-01:2018-09-30', 'støren_2021-09-01:2021-09-30', 'trondheim_2019-06-01:2019-06-30'
-]
+too_inaccurate = open('too_inaccurate.txt', 'r')
+too_cloudy = too_inaccurate.readlines()
+too_cloudy = [f.split('/')[1] for f in too_cloudy]
+too_inaccurate.close()
 
 root_images = "images/"
 image_dirs = [root_images+f+"/tiled_images/" for f in os.listdir(root_images) if not f.startswith('.') and\
-    '_test_' not in f and f not in esri_innacurate]
+    '_test_' not in f and f not in too_cloudy]
 order_of_regions = [region.split('/')[1].split('_')[0] for region in image_dirs]
 path_images = []
 
