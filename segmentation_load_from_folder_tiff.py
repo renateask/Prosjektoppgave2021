@@ -31,6 +31,8 @@ EPOCHS=30
 BATCH_SIZE=10
 HEIGHT=64
 WIDTH=64
+N = 14 #variable used for putting tiles together, 13 for Åndalsnes, 14 for Ler
+
 CLASSES = {
     1: 'Water',
     2: 'Trees',
@@ -98,10 +100,10 @@ def DataLoader(path):
 
 print(f"\n Label dictionary: {CLASSES}\n")
 
-model = keras.models.load_model("segmentation_model_sat-2-2")          ########## Segmentation Model
+model = keras.models.load_model("segmentation_model_sat-2-4")          ########## Segmentation Model
 model.summary()
 
-path = "data_4/validation/images"
+path = "data_64_large/test/tynset_test_2020-06-01:2020-06-30"
 
 num_tiles = len(os.listdir(path))
 
@@ -163,8 +165,6 @@ eleven = []
 twelve = []
 thirteen = []
 fourteen = []
-
-N = 14
 
 # Plots 13x13 tiles
 
@@ -276,6 +276,7 @@ thirteen = np.concatenate((thirteen), axis=0)
 sat_image = np.concatenate((one, two, three, four, five, six, seven, eight, nine, ten, eleven, twelve, thirteen), axis=1)
 
 fig, axs = plt.subplots(1, 2, figsize=(20,10))
+plt.title(path)
 axs[0].imshow(image)
 axs[0].set_title('Segmented Image')
 axs[1].imshow(sat_image)

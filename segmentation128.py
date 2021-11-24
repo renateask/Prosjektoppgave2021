@@ -1,3 +1,4 @@
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
@@ -15,15 +16,13 @@ import os
 import seaborn as sns
 import cv2
 from keras.callbacks import ModelCheckpoint
-from sklearn.metrics import precision_score
-from sklearn.metrics import recall_score
-from sklearn.metrics import confusion_matrix
-from sklearn.metrics import f1_score
+from tensorflow.keras.optimizers import Adam
 
-EPOCHS=30
-BATCH_SIZE=10
-HEIGHT=64
-WIDTH=64
+EPOCHS1=30
+EPOCHS2=15
+BATCH_SIZE=16
+HEIGHT=128
+WIDTH=128
 CLASSES = {
     1: 'Water',
     2: 'Trees',
@@ -50,7 +49,6 @@ def LoadImage(name, path):
 
 
 def bin_image(mask):
-    print(CLASSES.keys())
     bins = np.array([pixel_val for pixel_val in CLASSES.keys()])
     new_mask = np.digitize(mask, bins)
     return new_mask
@@ -95,8 +93,8 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
 
 if __name__ == '__main__':
-    train_folder = "data_64_large/train"
-    valid_folder = "data_64_large/validation"
+    train_folder = "128x128/train"
+    valid_folder = "128x128/validation"
 
     num_training_samples = len(os.listdir(train_folder+'/images'))
     num_valid_samples = len(os.listdir(valid_folder+'/images'))
@@ -108,7 +106,7 @@ if __name__ == '__main__':
 
     image = imgs[7]
     mask = give_color_to_seg_img(np.argmax(segs[7], axis=-1))
-    masked_image = mask #cv2.addWeighted(image, 0.5, mask, 0.5, 0)
+    masked_image = mask#cv2.addWeighted(image, 0.5, mask, 0.5, 0)
 
     fig, axs = plt.subplots(1, 3, figsize=(20,20))
     axs[0].imshow(image)
@@ -120,8 +118,74 @@ if __name__ == '__main__':
     axs[2].set_title('Masked Image')
     plt.show()
 
-    model = keras.models.load_model("segmentation_model_sat-2-4")
+    model = sm.Unet('resnet50', classes=N_CLASSES, activation='softmax', encoder_weights='imagenet', input_shape=[HEIGHT, WIDTH, 3], encoder_freeze=True)
+
     model.summary()
+
+    tf.keras.utils.plot_model(model, show_shapes=True, to_file='modelU-128.png')
+
+    ############################################# Training
+
+    model.compile(
+        optimizer=Adam(learning_rate=0.00001),
+        loss='categorical_crossentropy',
+        metrics=['categorical_crossentropy', 'acc'],
+    )
+
+    log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+
+    checkpoint = ModelCheckpoint('seg_model_sat-128.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+
+    TRAIN_STEPS = num_training_samples//BATCH_SIZE+1
+    VAL_STEPS = num_valid_samples//BATCH_SIZE+1
+
+    #model.fit_generator(train_gen, validation_data=val_gen, steps_per_epoch=TRAIN_STEPS,
+    #                    validation_steps=VAL_STEPS, epochs=EPOCHS, callbacks = [checkpoint, tensorboard_callback])
+    history = model.fit(
+        train_gen,
+        validation_data=val_gen,
+        epochs=EPOCHS1,
+        steps_per_epoch=TRAIN_STEPS,
+        callbacks=[checkpoint, tensorboard_callback],
+        workers=0,
+        verbose=1,
+        validation_steps=VAL_STEPS,
+    )
+
+    sm.utils.set_trainable(model, recompile=False)
+
+    model.summary()
+
+    model.compile(
+        optimizer=Adam(learning_rate=0.00000001),
+        loss='categorical_crossentropy',
+        metrics=['categorical_crossentropy', 'acc'],
+    )
+
+    
+
+    history = model.fit(
+        train_gen,
+        validation_data=val_gen,
+        epochs=EPOCHS2,
+        steps_per_epoch=TRAIN_STEPS,
+        callbacks=[checkpoint, tensorboard_callback],
+        workers=0,
+        verbose=1,
+        validation_steps=VAL_STEPS,
+    )
+
+    model.save("segmentation_model_sat-128")
+
+    
+    history_frame = pd.DataFrame(history.history)
+    history_frame.loc[:, ['loss', 'val_loss']].plot()
+    history_frame.loc[:, ['categorical_crossentropy', 'val_categorical_crossentropy']].plot()
+    history_frame.loc[:, ['acc', 'val_acc']].plot()
+    print(history_frame)
+    plt.show()
+    
 
     max_show = 10
     imgs, segs = next(val_gen)
@@ -130,67 +194,23 @@ if __name__ == '__main__':
     for i in range(max_show):
         _p = give_color_to_seg_img(np.argmax(pred[i], axis=-1))
         _s = give_color_to_seg_img(np.argmax(segs[i], axis=-1))
-        _i = imgs[i]
 
         predimg = cv2.addWeighted(imgs[i]/255, 0.5, _p, 0.5, 0)
         trueimg = cv2.addWeighted(imgs[i]/255, 0.5, _s, 0.5, 0)
 
         plt.figure(figsize=(12,6))
-        plt.subplot(131)
+        plt.subplot(121)
         plt.title("Prediction")
-        plt.imshow(_p)
+        plt.imshow(predimg)
         plt.axis("off")
-        plt.subplot(132)
+        plt.subplot(122)
         plt.title("Original")
-        plt.imshow(_s)
-        plt.axis("off")
-        plt.subplot(133)
-        plt.title("Original")
-        plt.imshow(_i)
+        plt.imshow(trueimg)
         plt.axis("off")
         plt.tight_layout()
-        plt.savefig("pred_"+str(i)+".png", dpi=150)
+        plt.savefig("pred_128_"+str(i)+".png", dpi=150)
         plt.show()
 
     """
     https://www.kaggle.com/ashishsingh226/semantic-segmentation-cityscapes
     """
-
-    print(f'preds: {pred[1]}')
-    print(f'segs: {segs[1]}')
-
-    #pred1 = np.argmax(pred[1], axis=-1)
-    #print(f'pred1: {pred1}')
-    #seg1 = np.argmax(segs[1], axis=-1)
-    #print(f'seg1: {seg1}')
-    predictions = []
-    segmentations = []
-    for i in range(len(pred)):
-        predictions.append(np.argmax(pred[i], axis=-1))
-        segmentations.append(np.argmax(segs[i], axis=-1))
-
-    print(f'preds: {predictions[1]}')
-    print(f'segs: {segmentations[1]}')
-
-    segmentations = np.array(segmentations)
-    predictions = np.array(predictions)
-
-    print(f"segmentation shape: {segmentations.shape}")
-    print(f"predictions shape: {predictions.shape}")
-
-    pred1D = predictions.reshape(-1)
-    segs1D = segmentations.reshape(-1)
-
-    print(f"segmentation 1d: {segs1D.shape}")
-    print(f"predictions 1d: {pred1D.shape}")
-
-    print(f"Confusion matrix: \n {tf.math.confusion_matrix(segs1D, pred1D, num_classes=N_CLASSES+1)}")
-
-    precision = precision_score(segs1D, pred1D, average='weighted')
-    recall = recall_score(segs1D, pred1D, average='weighted')
-    print(f'Precision score: {precision}')
-    print(f'Recall score: {recall}')
-    print(f'F1 score: {(2*precision*recall)/(recall+precision)}')
-    print(f"Confusion matrix: \n {confusion_matrix(segs1D, pred1D)}")
-    f1=f1_score(segs1D, pred1D, average='weighted')
-    print(f'F1 score: {f1}')

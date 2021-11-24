@@ -181,3 +181,11 @@ segmentation_model_sat-2-1-ler/
 segmentation_model_sat-2-2/
 segmentation_model_sat2-ler-1_0/
 seg_model_sat-2-0.hdf5
+segmentation_model_sat-2-3/
+segmentation_model_sat-2-4/
+segmentation_model_sat-128
+seg_model_sat-128.hdf5
+
+64x64
+128x128
+data_64_large
