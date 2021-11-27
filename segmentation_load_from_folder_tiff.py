@@ -33,6 +33,11 @@ HEIGHT=64
 WIDTH=64
 N = 14 #variable used for putting tiles together, 13 for Åndalsnes, 14 for Ler
 
+model = keras.models.load_model("segmentation_model_sat-2-5")          ########## Segmentation Model
+model.summary()
+
+path = "data_64_no_snow/test/tynset_test_2020-06-01:2020-06-30"
+
 CLASSES = {
     1: 'Water',
     2: 'Trees',
@@ -99,11 +104,6 @@ def DataLoader(path):
     return np.array(imgs)
 
 print(f"\n Label dictionary: {CLASSES}\n")
-
-model = keras.models.load_model("segmentation_model_sat-2-4")          ########## Segmentation Model
-model.summary()
-
-path = "data_64_large/test/tynset_test_2020-06-01:2020-06-30"
 
 num_tiles = len(os.listdir(path))
 

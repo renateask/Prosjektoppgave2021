@@ -18,8 +18,8 @@ import cv2
 from keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
 
-EPOCHS1=30
-EPOCHS2=15
+EPOCHS1=5 #30
+EPOCHS2=3 #15
 BATCH_SIZE=10
 HEIGHT=64
 WIDTH=64
@@ -93,8 +93,8 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
 
 if __name__ == '__main__':
-    train_folder = "data_4/train"
-    valid_folder = "data_4/validation"
+    train_folder = "data_64_no_snow/train"
+    valid_folder = "data_64_no_snow/validation"
 
     num_training_samples = len(os.listdir(train_folder+'/images'))
     num_valid_samples = len(os.listdir(valid_folder+'/images'))
@@ -106,7 +106,7 @@ if __name__ == '__main__':
 
     image = imgs[7]
     mask = give_color_to_seg_img(np.argmax(segs[7], axis=-1))
-    masked_image = mask #cv2.addWeighted(image, 0.5, mask, 0.5, 0)
+    masked_image = cv2.addWeighted(image, 0.5, mask, 0.5, 0)
 
     fig, axs = plt.subplots(1, 3, figsize=(20,20))
     axs[0].imshow(image)
@@ -135,14 +135,14 @@ if __name__ == '__main__':
     log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
 
-    checkpoint = ModelCheckpoint('seg_model_sat-2-0.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
+    checkpoint = ModelCheckpoint('seg_model_sat-2-5.hdf5', monitor='val_acc', verbose=1, save_best_only=True, mode='max')
 
     TRAIN_STEPS = num_training_samples//BATCH_SIZE+1
     VAL_STEPS = num_valid_samples//BATCH_SIZE+1
 
     #model.fit_generator(train_gen, validation_data=val_gen, steps_per_epoch=TRAIN_STEPS,
     #                    validation_steps=VAL_STEPS, epochs=EPOCHS, callbacks = [checkpoint, tensorboard_callback])
-    history = model.fit(
+    history1 = model.fit(
         train_gen,
         validation_data=val_gen,
         epochs=EPOCHS1,
@@ -165,7 +165,7 @@ if __name__ == '__main__':
 
     
 
-    history = model.fit(
+    history2 = model.fit(
         train_gen,
         validation_data=val_gen,
         epochs=EPOCHS2,
@@ -176,15 +176,23 @@ if __name__ == '__main__':
         validation_steps=VAL_STEPS,
     )
 
-    model.save("segmentation_model_sat-2-2")
+    model.save("segmentation_model_sat-2-5")
 
-    """
-    history_frame = pd.DataFrame(history.history)
-    history_frame.loc[:, ['loss', 'val_loss']].plot()
-    history_frame.loc[:, ['sparse_categorical_accuracy', 'val_sparse_categorical_accuracy']].plot()
-    print(history_frame)
+    
+    history_frame1 = pd.DataFrame(history1.history)
+    history_frame1.loc[:, ['loss', 'val_loss']].plot()
+    history_frame1.loc[:, ['categorical_crossentropy', 'val_categorical_crossentropy']].plot()
+    history_frame1.loc[:, ['acc', 'val_acc']].plot()
+    print(history_frame1)
     plt.show()
-    """
+
+    history_frame2 = pd.DataFrame(history2.history)
+    history_frame2.loc[:, ['loss', 'val_loss']].plot()
+    history_frame2.loc[:, ['categorical_crossentropy', 'val_categorical_crossentropy']].plot()
+    history_frame2.loc[:, ['acc', 'val_acc']].plot()
+    print(history_frame2)
+    plt.show()
+    
 
     max_show = 10
     imgs, segs = next(val_gen)

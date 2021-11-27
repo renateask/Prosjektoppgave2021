@@ -186,7 +186,14 @@ segmentation_model_sat-2-3/
 segmentation_model_sat-2-4/
 segmentation_model_sat-128
 seg_model_sat-128.hdf5
+seg_model_sat-2-5.hdf5
 
 64x64
 128x128
 data_64_large
+data_64_no_snow/
+
+segmentation_model_sat-2-5/
+segmentation_model_sat-2-6/
+segmentation_model_sat-2-7/
+segmentation_model_sat-2-7-1/
