@@ -95,8 +95,8 @@ def DataGenerator(path, batch_size=BATCH_SIZE, classes=N_CLASSES):
 
 
 if __name__ == '__main__':
-    train_folder = "data_64_no_snow/train"
-    valid_folder = "data_64_no_snow/validation"
+    train_folder = "data/train"
+    valid_folder = "data/validation"
 
     num_training_samples = len(os.listdir(train_folder+'/images'))
     num_valid_samples = len(os.listdir(valid_folder+'/images'))
@@ -120,10 +120,10 @@ if __name__ == '__main__':
     axs[2].set_title('Masked Image')
     plt.show()
 
-    model = keras.models.load_model("segmentation_model_sat-2-7-1")
+    model = keras.models.load_model("segmentation_model_sat-2-5")
     model.summary()
 
-    max_show = 10
+    max_show = 1
     imgs, segs = next(val_gen)
     pred = model.predict(imgs)
 
@@ -186,11 +186,25 @@ if __name__ == '__main__':
 
     print(f"Confusion matrix: \n {tf.math.confusion_matrix(segs1D, pred1D, num_classes=N_CLASSES+1)}")
 
-    precision = precision_score(segs1D, pred1D, average='weighted')
-    recall = recall_score(segs1D, pred1D, average='weighted')
-    print(f'Precision score: {precision}')
-    print(f'Recall score: {recall}')
-    print(f'F1 score: {(2*precision*recall)/(recall+precision)}')
-    print(f"Confusion matrix: \n {confusion_matrix(segs1D, pred1D)}")
+    global_precision = precision_score(segs1D, pred1D, average='micro')
+    global_recall = recall_score(segs1D, pred1D, average='micro')
+    print(f'Global Precision score: {global_precision}')
+    print(f'Global Recall score: {global_recall}')
+    print(f'Global F1 score: {(2*global_precision*global_recall)/(global_recall+global_precision)}')
+    
+    macro_precision = precision_score(segs1D, pred1D, average='macro')
+    macro_recall = recall_score(segs1D, pred1D, average='macro')
+    print(f'macro Precision score: {macro_precision}')
+    print(f'macro Recall score: {macro_recall}')
+    print(f'macro F1 score: {(2*macro_precision*macro_recall)/(macro_recall+macro_precision)}')
+    f1_macro = f1_score(segs1D, pred1D, average='macro')
+    print(f1_macro)
+
+    weighted_precision = precision_score(segs1D, pred1D, average='weighted')
+    weighted_recall = recall_score(segs1D, pred1D, average='weighted')
+    print(f'Weighted Precision score: {weighted_precision}')
+    print(f'Weighted Recall score: {weighted_recall}')
+    print(f'Weighted F1 score: {(2*weighted_precision*weighted_recall)/(weighted_recall+weighted_precision)}')
+    #print(f"Confusion matrix: \n {confusion_matrix(segs1D, pred1D)}")
     f1=f1_score(segs1D, pred1D, average='weighted')
     print(f'F1 score: {f1}')
